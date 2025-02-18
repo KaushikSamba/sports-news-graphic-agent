@@ -4,20 +4,28 @@ import requests
 import pytz
 import yaml
 from tools.final_answer import FinalAnswerTool
+from tools.visit_webpage import VisitWebpageTool
 
 from Gradio_UI import GradioUI
 
 
-# Below is an example of a tool that does nothing. Amaze us with your creativity !
 @tool
-def my_custom_tool(arg1:str, arg2:int)-> str: #it's import to specify the return type
-    #Keep this format for the description / args / args description but feel free to modify the tool
-    """A tool that does nothing yet 
+def get_latest_sports_news_tool(sport: str)-> str: 
+    """A tool that retrieves the latest sports news headlines.
     Args:
-        arg1: the first argument
-        arg2: the second argument
+        sport: the sport to get news about. Allowable options: 'football/nfl' for NFL, 'tennis/wta' for Women's Tennis, 'tennis/atp' for Men's Tennis.
     """
-    return "What magic will you build ?"
+    
+    # Allowable endpoints are:
+    # "https://site.api.espn.com/apis/site/v2/sports/football/nfl/news"
+    # "https://site.api.espn.com/apis/site/v2/sports/tennis/wta/news"
+    # "https://site.api.espn.com/apis/site/v2/sports/tennis/atp/news"
+    # Can I count on the LLM to adhere to the instructions in my documentation? 
+    endpoint = f"https://site.api.espn.com/apis/site/v2/sports/{sport}/news"
+    response = requests.get(endpoint)
+    response = response.json()
+    return response.get("articles", [])
+
 
 @tool
 def get_current_time_in_timezone(timezone: str) -> str:
@@ -60,6 +68,8 @@ agent = CodeAgent(
         image_generation_tool, 
         get_current_time_in_timezone,
         DuckDuckGoSearchTool(),
+        VisitWebpageTool(),
+        get_latest_sports_news_tool,
         final_answer,
     ], ## add your tools here (don't remove final answer)
     max_steps=6,
