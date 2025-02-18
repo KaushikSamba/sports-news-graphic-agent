@@ -58,6 +58,7 @@ agent = CodeAgent(
     tools=[
         image_generation_tool, 
         get_current_time_in_timezone,
+        DuckDuckGoSearchTool,
         final_answer,
     ], ## add your tools here (don't remove final answer)
     max_steps=6,
